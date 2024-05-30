@@ -13,7 +13,8 @@ public class Jump : MonoBehaviour
             Rigidbody playerRigidbody = other.GetComponent<Rigidbody>();
             if (playerRigidbody != null)
             {
-                playerRigidbody.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+                //playerRigidbody.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+                Debug.Log("OnTriggerEnter");
             }
         }
     }

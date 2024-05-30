@@ -200,6 +200,9 @@ public class UIInventory : MonoBehaviour
                     case ConsumableType.MoveSpeed:
                         condition.MoveSpeed(selectedItem.consumables[i].value, selectedItem.consumables[i].duration);
                         break;
+                    case ConsumableType.JumpCount:
+                        condition.JumpCount(selectedItem.consumables[i].value, selectedItem.consumables[i].duration);
+                        break;
                 }
             }
             RemoveSelectedItem();

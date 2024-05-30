@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class PlayerController : MonoBehaviour
     public float jumpPower;
     private Vector2 curMovementInput;
     public LayerMask groundLayerMask;
+    public LayerMask wallLayerMask;
+    public int jumpCount = 1;
+    public int maxJumpCount = 1;
 
 
     [Header("Look")]
@@ -24,6 +28,7 @@ public class PlayerController : MonoBehaviour
 
     public Action inventory;
     private Rigidbody _rigidbody;
+    public Button button;
 
     private void Awake()
     {
@@ -85,11 +90,77 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && IsGrounded())
+        if (context.phase == InputActionPhase.Started)
         {
-            _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+            if (IsGrounded())
+            {
+                _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+                jumpCount = 1; //초기화
+            }
+            else if (jumpCount < maxJumpCount)
+            {
+                _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+                jumpCount++;
+            }
         }
     }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        int targetLayer = LayerMask.NameToLayer("wallLayerMask");
+        if (collision.gameObject.layer == targetLayer)
+        {
+            button.gameObject.SetActive(true);
+        }
+    }
+    public void OnCollisionExit(Collision collision)
+    {
+        int targetLayer = LayerMask.NameToLayer("wallLayerMask");
+        if (collision.gameObject.layer == targetLayer)
+        {
+            button.gameObject.SetActive(false);
+        }
+    }
+    public float rayDistance = 5.0f;
+    public float climbDuration = 2.0f;
+
+    public bool isClimbing = false;
+
+    public IEnumerator ClimbWall()
+    {
+        isClimbing = true;
+        Debug.Log("벽에 매달림");
+
+        // 벽에 매달리는 동작
+        // 여기서 캐릭터의 애니메이션이나 위치를 조정할 수 있습니다.
+        // 예를 들어, 캐릭터를 벽에 붙이는 코드:
+        Vector3 climbPosition = transform.position + (transform.forward * 0.5f) + (transform.up * 1.0f);
+        transform.position = climbPosition;
+
+        yield return new WaitForSeconds(climbDuration);
+
+        isClimbing = false;
+        Debug.Log("벽에서 내려옴");
+    }
+
+
+    public bool IsFrontBlocked()
+    {
+        Ray[] rays = new Ray[1]
+        {
+        new Ray(transform.position + (transform.up * 0.01f), transform.forward)
+        };
+
+        foreach (Ray ray in rays)
+        {
+            if (Physics.Raycast(ray, 5.0f, wallLayerMask))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     bool IsGrounded()
     {
@@ -98,7 +169,7 @@ public class PlayerController : MonoBehaviour
             new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
             new Ray(transform.position + (-transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
             new Ray(transform.position + (transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
-            new Ray(transform.position + (-transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down)
+            new Ray(transform.position + (-transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
         };
 
         for (int i = 0; i < rays.Length; i++)

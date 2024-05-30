@@ -14,7 +14,8 @@ public enum ConsumableType
 {
     Health,
     Hunger,
-    MoveSpeed
+    MoveSpeed,
+    JumpCount       
 }
 [Serializable]
 public class ItemDataConsumable

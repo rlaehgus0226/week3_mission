@@ -51,6 +51,18 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         hunger.Add(amount);
     }
 
+    public void JumpCount(float amount, float duration)
+    {
+        StartCoroutine(JumpUpCoroutine(amount, duration));
+    }
+
+    public IEnumerator JumpUpCoroutine(float amount, float duration)
+    {
+        playerController.maxJumpCount += (int)amount;
+        yield return new WaitForSeconds(duration);
+        playerController.maxJumpCount -= (int)amount;
+    }
+
     //float value;
     //public void MoveSpeed(float amount)
     //{
